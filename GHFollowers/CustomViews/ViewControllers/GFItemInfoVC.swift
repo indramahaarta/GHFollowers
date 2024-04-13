@@ -12,9 +12,10 @@ class GFItemInfoVC: UIViewController {
     let stackView = UIStackView()
     let itemInfoViewOne = GFItemInfoView()
     let itemInfoViewTwo = GFItemInfoView()
-    let actionButton = GFButton()
+    let itemButton = GFButton()
     
     var user: User!
+    weak var delegate: UserInfoVCDelegate!
     
     init(user: User!) {
         super.init(nibName: nil, bundle: nil)
@@ -27,10 +28,10 @@ class GFItemInfoVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         configureBackgroundView()
         layoutUI()
         configureStackView()
+        configureActionButton()
     }
     
     private func configureBackgroundView() {
@@ -45,9 +46,17 @@ class GFItemInfoVC: UIViewController {
         stackView.addArrangedSubview(itemInfoViewTwo)
     }
     
+    private func configureActionButton() {
+        itemButton.onTap = {
+            self.actionButtonPressed()
+        }
+    }
+    
+    @objc func actionButtonPressed() {}
+    
     private func layoutUI() {
         view.addSubview(stackView)
-        view.addSubview(actionButton)
+        view.addSubview(itemButton)
         
         stackView.translatesAutoresizingMaskIntoConstraints = false
         let padding: CGFloat = 20
@@ -58,10 +67,10 @@ class GFItemInfoVC: UIViewController {
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
             stackView.heightAnchor.constraint(equalToConstant: 50),
             
-            actionButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -padding),
-            actionButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
-            actionButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
-            actionButton.heightAnchor.constraint(equalToConstant: 44)
+            itemButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -padding),
+            itemButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
+            itemButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
+            itemButton.heightAnchor.constraint(equalToConstant: 44)
         ])
     }
 }

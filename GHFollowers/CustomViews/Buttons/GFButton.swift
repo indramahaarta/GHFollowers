@@ -8,6 +8,8 @@
 import UIKit
 
 class GFButton: UIButton {
+    var onTap: (() -> Void)?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -31,8 +33,13 @@ class GFButton: UIButton {
         translatesAutoresizingMaskIntoConstraints = false
     }
     
-    func set(backgrounfColor: UIColor, title: String) {
-        self.backgroundColor = backgrounfColor
+    func set(backgroundColor: UIColor, title: String) {
+        self.backgroundColor = backgroundColor
         setTitle(title, for: .normal)
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        onTap?()
     }
 }

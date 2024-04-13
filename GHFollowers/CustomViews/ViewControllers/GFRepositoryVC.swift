@@ -16,6 +16,10 @@ class GFRepositoryVC: GFItemInfoVC {
     private func configureItems() {
         itemInfoViewOne.setItemInfoType(itemInfoType: .repos, with: user.publicRepos)
         itemInfoViewTwo.setItemInfoType(itemInfoType: .gits, with: user.publicGists)
-        actionButton.set(backgrounfColor: .systemPurple, title: "Github Profile")
+        itemButton.set(backgroundColor: .systemPurple, title: "Github Profile")
+    }
+    
+    override func actionButtonPressed() {
+        delegate.didTapGithubProfile(user: user)
     }
 }

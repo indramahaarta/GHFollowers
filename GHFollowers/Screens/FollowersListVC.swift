@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol FollowersListDelegate: AnyObject {
+    func didRequestFollowers(for username: String)
+}
+
 class FollowersListVC: UIViewController {
     
     enum Section { case main }
@@ -38,6 +42,35 @@ class FollowersListVC: UIViewController {
     func configureViewController() {
         view.backgroundColor = .systemBackground
         navigationController?.navigationBar.prefersLargeTitles = true
+        
+        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTap))
+        navigationItem.rightBarButtonItem = addButton
+    }
+    
+    @objc func addButtonTap() {
+        showLoadingView()
+        NetworkManager.shared.getUserInfo(username: username) { [weak self] result in
+            guard let self = self else {
+                return
+            }
+            
+            self.dismissLoadingView()
+            
+            switch result {
+            case .success(let user):
+                let favorite = Follower(login: user.login, avatarUrl: user.avatarUrl)
+                PersistantManager.updateWith(favorite: favorite, actionType: .add) { [weak self] error in
+                    guard let self = self else { return }
+                    if error == nil {
+                        self.presentGFAlertOnMainThread(title: "Success", message: "Success to adding this user to your list of favorites ✨", buttonTitle: "Ok")
+                    } else {
+                        self.presentGFAlertOnMainThread(title: "Something went wrong", message: error?.rawValue ?? "" , buttonTitle: "Ok")
+                    }
+                }
+            case .failure(let error):
+                self.presentGFAlertOnMainThread(title: "Something went wrong", message: error.rawValue, buttonTitle: "Ok")
+            }
+        }
     }
     
     func configureCollectionView() {
@@ -100,6 +133,20 @@ class FollowersListVC: UIViewController {
     }
 }
 
+extension FollowersListVC: FollowersListDelegate {
+    func didRequestFollowers(for username: String) {
+        // request followers
+        self.username = username
+        title = username
+        page = 1
+        followers.removeAll()
+        filteredFollowers.removeAll()
+        collectionView.setContentOffset(.zero, animated: true)
+        
+        getFollowers(username: username, page: page)
+    }
+}
+
 extension FollowersListVC: UICollectionViewDelegate {
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
@@ -118,6 +165,7 @@ extension FollowersListVC: UICollectionViewDelegate {
         
         let desVc = UserInfoVC()
         desVc.username = follower.login
+        desVc.delegate = self
         let navigationVc = UINavigationController(rootViewController: desVc)
         present(navigationVc, animated: true)
     }
